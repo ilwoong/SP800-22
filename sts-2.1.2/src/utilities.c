@@ -6,6 +6,7 @@ U T I L I T I E S
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include <omp.h>
 #include "../include/externs.h"
 #include "../include/utilities.h"
 #include "../include/generators.h"
@@ -260,12 +261,16 @@ void
 readBinaryDigitsInASCIIFormat(FILE *fp, char *streamFile)
 {
 	int		i, j, num_0s, num_1s, bitsRead, bit;
+	double	elapsed;
 	
 	if ( (epsilon = (BitSequence *) calloc(tp.n, sizeof(BitSequence))) == NULL ) {
 		printf("BITSTREAM DEFINITION:  Insufficient memory available.\n");
 		printf("Statistical Testing Aborted!\n");
 		return;
 	}
+
+	elapsed = omp_get_wtime();
+
 	printf("     Statistical Testing In Progress.........\n\n");   
 	for ( i=0; i<tp.numOfBitStreams; i++ ) {
 		num_0s = 0;
@@ -291,6 +296,9 @@ readBinaryDigitsInASCIIFormat(FILE *fp, char *streamFile)
 		nist_test_suite();
 	}
 	free(epsilon);
+
+	elapsed = omp_get_wtime() - elapsed;
+	printf("Elapsed: %lf seconds\n", elapsed);
 }
 
 
@@ -299,11 +307,14 @@ readHexDigitsInBinaryFormat(FILE *fp)
 {
 	int		i, done, num_0s, num_1s, bitsRead;
 	BYTE	buffer[4];
+	double	elapsed;
 	
 	if ( (epsilon = (BitSequence *) calloc(tp.n,sizeof(BitSequence))) == NULL ) {
 		printf("BITSTREAM DEFINITION:  Insufficient memory available.\n");
 		return;
 	}
+
+	elapsed = omp_get_wtime();
 
 	printf("     Statistical Testing In Progress.........\n\n");   
 	for ( i=0; i<tp.numOfBitStreams; i++ ) {
@@ -325,6 +336,9 @@ readHexDigitsInBinaryFormat(FILE *fp)
 		
 	}
 	free(epsilon);
+
+	elapsed = omp_get_wtime() - elapsed;
+	printf("Elapsed: %lf seconds\n", elapsed);
 }
 
 
