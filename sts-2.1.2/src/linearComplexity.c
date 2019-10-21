@@ -10,7 +10,7 @@ LinearComplexity(int M, int n)
 {
 	int       i, ii, j, d, N, L, m, N_, parity, sign, K = 6;
 	double    p_value, T_, mean, nu[7], chi2;
-	double    pi[7] = { 0.01047, 0.03125, 0.12500, 0.50000, 0.25000, 0.06250, 0.020833 };
+	double    pi[7] = { 0.010417, 0.03125, 0.12500, 0.50000, 0.25000, 0.06250, 0.020833 };
 	BitSequence  *T = NULL, *P = NULL, *B_ = NULL, *C = NULL;
 	
 	N = (int)floor(n/M);
