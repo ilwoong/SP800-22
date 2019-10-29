@@ -1,6 +1,6 @@
 # Random Sample Generator
 
-Generate random sample to a file using Mersenne Twister (std::mt19937_64)
+Generate random sample to a file using Mersenne Twister PRNG (std::mt19937_64)
 
 ## Usage
 ```console

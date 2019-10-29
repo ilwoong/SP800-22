@@ -36,10 +36,10 @@ static void print_usage()
 
 static void fill_random_buffer(uint8_t* buffer, size_t length) 
 {
-    std::random_device rd;
-    std::mt19937_64 engine(rd());
-    std::uniform_int_distribution<uint8_t> dist(0, 255);
-    auto generator = std::bind(dist, engine);
+    std::random_device rand_dev;
+    std::mt19937_64 engine(rand_dev());
+    std::uniform_int_distribution<uint8_t> uni_dist(0, 255);
+    auto generator = std::bind(uni_dist, engine);
 
     for (auto i = 0; i < length; ++i) {
         buffer[i] = generator();
@@ -48,24 +48,53 @@ static void fill_random_buffer(uint8_t* buffer, size_t length)
 
 static void generate_random(std::ofstream& ofs, size_t length)
 {
-    uint8_t buffer[1024] = {0};
+    const size_t buf_size = 1024;
+    uint8_t buffer[buf_size] = {0};
 
-    size_t n = length / 1024;
-    size_t q = length % 1024;
+    size_t quotient = length / buf_size;
+    size_t remainder = length % buf_size;
     
-    for (auto i = 0; i < n ; ++i) {
-        fill_random_buffer(buffer, 1024);
-        ofs.write((char*)buffer, 1024);
+    for (auto i = 0; i < quotient ; ++i) {
+        fill_random_buffer(buffer, buf_size);
+        ofs.write((char*)buffer, buf_size);
     }
 
-    if (q > 0) {
-        fill_random_buffer(buffer, q);
-        ofs.write((char*)buffer, q);
+    if (remainder > 0) {
+        fill_random_buffer(buffer, remainder);
+        ofs.write((char*)buffer, remainder);
     }
 }
 
-static void write_random_file(const char* filepath, size_t length)
+static bool is_file_exists(const char* filepath)
 {
+    return static_cast<bool>(std::ifstream(filepath));
+}
+
+static bool confirm_overwrite(const char* filepath)
+{
+    if(is_file_exists(filepath)) {
+        char answer;
+        while (true) {
+            std::cout << filepath << " is exists, overwrite it? (Y/n)" << std::endl;
+            std::cin >> answer;
+
+            if (answer == 'Y' || answer == 'y') {
+                return true;
+            } else if (answer == 'N' || answer == 'n') {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+static bool write_random_file(const char* filepath, size_t length)
+{
+    if (confirm_overwrite(filepath) == false) {
+        return false;
+    }
+    
     std::ofstream ofs(filepath, std::ios::binary);
 
     if (ofs.is_open()) {
@@ -73,6 +102,8 @@ static void write_random_file(const char* filepath, size_t length)
     }
 
     ofs.close();
+
+    return true;
 }
 
 int main(int argc, const char** argv)
@@ -85,7 +116,12 @@ int main(int argc, const char** argv)
     auto filepath = argv[1];
     auto length = atoi(argv[2]);
 
-    write_random_file(filepath, length);
+    if (write_random_file(filepath, length)) {
+        std::cout << length << " bytes of random data were written to " << filepath << std::endl;
+
+    } else {
+        std::cout << "CANCELED" << std::endl;
+    }
 
     return 0;
 }
